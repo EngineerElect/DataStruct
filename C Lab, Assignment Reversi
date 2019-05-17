@@ -1,0 +1,422 @@
+C Lab, Assignment: Reversi
+BEFORE starting the assignments.
+The deadline for the assigment is shown on the Surreylearn submission system.
+For this assignment, you will be asked to implement the board game Reversi (otherwise known as Othello).
+You will be provided with the source code for the main function and the requirements of the lower level
+functions needed to run the game.
+When submitting the files, you MUST follow the name specification as described in the end of each part of
+the assignment. Failing to follow the name specification will result in a penalty of 10 percent reduction
+from your final mark.
+Playing the Game
+Reversi is a two player game (black and white), and is normally played on an 8x8 grid. The object of the
+game is to fill the board with your own colour of pieces. You win if at the end of the game there are more
+pieces of your own colour on the board than your opponent’s. The initial setup of the board is two pieces
+from each player, placed diagonally to each other in the centre of the board, as shown in Figure 1.
+Each player in turn places a piece on the board, starting with the player using the white pieces. A valid
+move is one where you can turn at least one of your opponents pieces into a piece of your colour. You can
+do this if when you place your piece on the board, it terminates a continuous line of pieces of the opposing
+colour, with one of your pieces at the other end of the line. All of the pieces in the line are then flipped to
+your colour. The lines can be in any of the eight lateral and diagonal directions from the position you have
+chosen. If there is more than one such line of pieces, all of them are flipped to your colour. For example,
+take figure 2 to be the current status of play, it is white to move. White can make a move at (x,y) position
+(4,7). This will flip the black pieces situated in (4,3), (4,4), (4,5) and (4,6) to white, thus leaving the black
+player with only two pieces left on the board.
+Basic Rules of the boardgame
+1. The player with the white pieces goes first, and then play alternates.
+2. To make a move, you must be able to flip at least one of your opponents pieces to your colour, by
+completing a line of pieces as described above.
+3. If you can make a valid move, you must (NOTE: this is a rule of the boardgame, but it does not need
+to be implemented for this assignment).
+4. If you can’t go, you must pass your turn and your opponent plays again.
+Starting the Assignment
+Firstly, cd to your eeclabs directory. Then download the input files for part 1 to this directory from
+SurreyLearn.
+This should include the header file reversi.h, the C source files reversi.c, reversi1.c, reversi2.c and
+reversi3.c, and the sample input/output files revi1, revo1 and revo2. T
+2
+Figure 1: The initial setup of a Reversi board.
+(a) before (b) after
+Figure 2: Illustration of a typical move in the game. Blue circle shows the new (white) token played, and
+the grayed out tokens indicate the black tokens flipped to white by this move.
+3
+Together the four C files and the header file make up a single multi-file C program, i.e. a program generated
+from multiple source files, but with only one main() function. Compile the program with the command
+gcc -ansi -Wall reversi.c reversi1.c reversi2.c reversi3.c -o reversi
+It should compile successfully. Run it using the command:
+./reversi
+You will find that the program only parses the command line options and exits.
+Command Line Arguments
+The command line is where you enter your commands when initialising a program. This game requires
+the size of the board and the nature of play to be entered when running the program. If neither of these
+parameters are entered, default values are assumed.
+The syntax of a general call to run the reversi program is
+./reversi -size <size_of_board> -users <nature_of_play>
+The default size of the board is 8 × 8, and the default user is human against human (hh). The size of the
+board must be an even number, and the users can be varied over hh, hc, ch and cc (human vs. human,
+human vs. computer etc.). So for instance
+./reversi -size 12
+sets the board size to 12 but leaves the users as the default human vs. human, while
+./reversi -size 12 -users ch
+also sets the users to computer (white) vs. human (black). The code to deal with these command line
+options is already written for you.
+Your assignment is to build this program into a working Reversi game by filling in the empty functions.
+Externally defined variables
+In the header file reversi.h there are extern declarations. These correspond to global variables defined
+in reversi.c. extern variable declarations are used when you want to use a global variable defined in a
+different source file. An extern declaration basically says “there is a variable of this type and name defined
+somewhere else in the program, so I can use it here”. In this case the extern declarations allow the files
+reversi1.c, reversi2.c and reversi3.c to use the global variables defined in reversi.c.
+Part 1: Initialise and Print Board (35 marks)
+In the first part of the assignment, you are to fill in the functions Initialise Board() and Print Board()
+by modifying reversi1.c. Initialise Board() should set the board positions to zero values (use the
+defined constant EMPTY SPACE), and place the starting four pieces on t
+4
+score for both players (two pieces each). Use the defined constants PLAYER1 and PLAYER2 to indicate the
+white/black pieces respectively. Both functions need to read the size global variable to determine the size
+of the board. The maximum board size is 16. When these functions are implemented, and the program
+recompiled as above, the program should print the initial board configuration and exit. The format in which
+the board should be printed to standard output is as follows, for a 12 × 12 board:
+1 2 3 4 5 6 7 8 9101112
+_ _ _ _ _ _ _ _ _ _ _ _
+1: . . . . . . . . . . . .
+2: . . . . . . . . . . . .
+3: . . . . . . . . . . . .
+4: . . . . . . . . . . . .
+5: . . . . . . . . . . . .
+6: . . . . . * O . . . . .
+7: . . . . . O * . . . . .
+8: . . . . . . . . . . . .
+9: . . . . . . . . . . . .
+10: . . . . . . . . . . . .
+11: . . . . . . . . . . . .
+12: . . . . . . . . . . . .
+Player 1 (O) score: 2
+Player 2 (*) score: 2
+If the state of play was such as Figure 2, the following would be printed to standard output:
+1 2 3 4 5 6 7 8
+_ _ _ _ _ _ _ _
+1: . . O . . . . .
+2: . . . O . . . .
+3: . . O * O . . .
+4: . . . * * * . .
+5: . . O * O . . .
+6: . . . * . . . .
+7: . . . . . . . .
+8: . . . . . . . .
+Player 1 (O) score: 6
+Player 2 (*) score: 6
+Two characters are used for each board position indicator 1...12. A line of underline characters (’ ’) separates
+the x-position numbers from the board itself. An ’O’ is printed for a white piece, ’*’ for a black piece, and
+’.’ for an empty square.
+Note: The marker for a white piece is a capital letter O, not the number zero (0).
+A colon (’:’) separates the y-position indicators from the board. A newline character should be printed at
+the start to leave a space above the printed board. The current scores for each player (number of pieces on
+the board of the relevant colour) should be printed as above.
+Please note that, as with the other assignments, the testing that will be applied to your program involves
+comparing what your program prints to standard output (stdout) with the correct output specified in
+the assignment sheet and produced by our reference program. Your program must conform to the specified
+5
+output format to be classified as a working program. Therefore please take note of any instructions regarding
+output. The use of the standard error (stderr) is however unrestricted, so any debugging messages, prompts
+etc. should be fprintf’d to stderr.
+Compile the program with the command
+gcc -ansi -Wall reversi.c reversi1.c reversi2.c reversi3.c -o reversi
+The program should print the starting position as above and exit.
+When you have thoroughly debugged and tested your program (reversi1.c), and have written the comment
+blocks into the source code as described in the rules for assignments on the Web page, re-name your file
+according to the following specification and then submit the program to SurreyLearn.
+NOTE 1: The name of the submitted file MUST be proceeded with your surname and initial followed by
+the name of the program. For example, if your surname is “Brown”, and your first name is “Peter”, you
+need to name the file as follows:
+BROWNP-reversi1.c
+The first part is your surname and initial followed by a hyphen, and then followed by the original filename.
+If you also have middle names, ignore them in the file name. If your files do not follow this name
+specification, as a penalty, 10 percent will be deducted from your final mark.
+NOTE 2: Submit your program (named according to NOTE 1) to SurreyLearn, which can be accessed via
+the following web site:
+http://surreylearn.surrey.ac.uk/
+Please use your university username and password (the same username and password that you use to access
+your university email and computers in the campus) to login. Once you login to SurreyLearn, you will be able
+to see the links to COMPUTERS & PROGRAMMING 1: THE C LANGUAGE on your My SurreyLearn Homepage.
+Click this link, and submit your assignment to the folder Assignment - Reversi.
+Part 2: Reversi for Two Human Players (50 marks)
+In part 2 of the assignment you should implement the functions required to allow you to play Reversi between
+two human players. The functions in reversi2.c are Get Human Move(), Get Score() and Move(), which
+are explained in the source template provided to you. In Get Human Move, you need to request the x and
+y positions for a move as a single string on a line, so that if the player types “4 7” and presses return, the
+move is on the position x=4, y=7. Assume that the x-axis is horizontal and the y-axis is vertical. Remember
+that in your C code you will use x/y coordinates starting from zero, so you will need to subtract one from
+the values typed in at the keyboard. The function Get Human Move() should also handle reading “p” or
+“q” from the keyboard instead of x/y values. If the player types “p” it means pass, and the other player
+moves. In this case Get Human Move() should return zero. If “q” is typed, you should return the value -1
+from Get Human Move(), and the program terminates. The program is organised so that only the keyboard
+x & y coordinates (or “p”/“q”) are read from the input, and only the board positions and scores are printed
+to standard output (by Print Board()). This makes it easy to run a gam
+6
+you should get the output given by the file revo1.
+Compile the program with the command
+gcc -ansi -Wall reversi.c reversi1.c reversi2.c reversi3.c -o reversi
+When you have thoroughly debugged and tested your program (reversi2.c), and have written the comment
+blocks into the source code as described in the rules for assignments on the Web page, re-name your file
+according to the following specification and then submit the program to both SurreyLearn.
+NOTE 1: The name of the submitted file MUST be proceeded with your surname and initial followed by
+the name of the program. For example, if your surname is “Brown”, and your first name is “Peter”, you
+need to name the file as follows:
+BROWNP-reversi2.c
+The first part is your surname and initial followed by a hyphen, and then followed by the original filename.
+If you also have middle names, ignore them in the file name. If your files do not follow this name
+specification, as a penalty, 10 percent will be deducted from your final mark.
+Part 3: Reversi with One/Two Computer Players (15 marks)
+In the final part of the assignment you write the function Best Move in the file reversi3.c which implements
+a simple algorithm to find a “best” move. The algorithm checks every possible move, and finds the move
+which flips most pieces to black/white. If there is more than one “best” move, choose the move closest to
+the top-left corner of the board in “raster-scan” order. In other words, choose move 2 2 over 3 2 and also
+over 3 3 or 1 3. The Best Move() function should implement this algorithm and return the score for the
+move (number of pieces flipped plus one for the new move).
+When the Best Move() function is written, you can compile it with the usual command
+gcc -ansi -Wall reversi.c reversi1.c reversi2.c reversi3.c -o reversi
+and test it by playing computer against computer:
+./reversi -users cc > tmp
+The output file can be compared with the correct output file revo2.
+When you have thoroughly debugged and tested your program (reversi3.c), and have written the comment
+blocks into the source code as described in the rules for assignments on the Web page, re-name your file
+according to the following specification and then submit the program to both SurreyLearn.
+NOTE 1: The name of the submitted file MUST be proceeded with your surname and initial followed by
+the name of the program. For example, if your surname is “Brown”, and your first name is “Peter”, you
+need to name the file as follows:
+BROWNP-reversi3.c
+The first part is your surname and initial followed by a hyphen, and then followed by the original filename.
+If you also have middle names, ignore them in the file name. If your files do not follow this name
+specification, as a penalty, 10 percent will be deducted from your final mark.
+7
+Listing of reversi.c
+/* reversi.c: containing the main() function. DO NOT MODIFY!!!! */
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include "reversi.h"
+/* board on which the game is played, defined as a two-dimensional array
+* of squares
+*/
+int board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+/* actual size of board, less than or equal to MAX_BOARD_SIZE, set to default
+* size
+*/
+int size = 8;
+/* player types, defaulting to human versus human */
+int player1 = HUMAN;
+int player2 = HUMAN;
+/* current scores of each player, initialised to zero */
+int player1_score = 0;
+int player2_score = 0;
+/* strpreicmp()
+*
+* This is used to parse the command line options!
+* Check to see if str1 is a prefix of str2
+* Case of strings is ignored
+* returns 0 if not a prefix
+* returns 1 otherwise
+*/
+static int strpreicmp(const char *str1, const char *str2)
+{
+while(*str1 != ’\0’)
+{
+if(toupper(*str1++) != toupper(*str2++)) return 0;
+}
+return 1;
+}
+/*
+********************************************************************
+************************* Main Program *****************************
+********************************************************************
+*
+* Should not be modified by the student
+*/
+8
+int main(int argc, char *argv[])
+{
+int currentarg = 1;
+char *curarg;
+int score1=1, score2=1;
+/* parse the command line options */
+while(currentarg < argc)
+{
+/* get the current argument */
+curarg = argv[currentarg];
+/* ignore the ’-’ */
+if(curarg[0] == ’-’) curarg++;
+else
+{
+/* print argument list and exit */
+fprintf(stderr,"%s -size <size> -users hh/hc/ch/cc\n", argv[0]);
+exit(-1);
+}
+if(strpreicmp(curarg, "size"))
+{
+/* first check there is an argument */
+if((currentarg+1) == argc)
+{
+/* print an error message and exit */
+fprintf(stderr,"%s: Missing argument for option -size.\n",
+argv[0]);
+exit(-1);
+}
+/* get the argument value */
+curarg = argv[++currentarg];
+size = atoi(curarg);
+if ( size < 4 || size > MAX_BOARD_SIZE )
+{
+/* print an error message and exit */
+fprintf(stderr,"%s: Board size must be between 4 and %i\n",
+argv[0], MAX_BOARD_SIZE);
+exit(-1);
+}
+if ( size % 2 != 0 )
+{
+/* print an error message and exit */
+fprintf(stderr,"%s: Board size must be even\n", argv[0]);
+exit(-1);
+}
+fprintf(stderr,"The size of board has been set to %i\n", size);
+}
+9
+else if(strpreicmp(curarg, "users"))
+{
+/* check there is an argument */
+if((currentarg+1) == argc)
+{
+/* print an error message and exit*/
+fprintf(stderr,"%s: Missing argument for option -users\n",
+argv[0]);
+exit(-1);
+}
+/* get the argument */
+curarg = argv[++currentarg];
+if ( curarg[0] == ’h’ ) player1 = HUMAN;
+else if ( curarg[0] == ’c’ ) player1 = COMPUTER;
+else
+{
+/* print an error message and exit */
+fprintf(stderr,"%s: Illegal argument \"%s\" for option -users.\n",
+argv[0], curarg);
+exit(-1);
+}
+if ( curarg[1] == ’h’ ) player2 = HUMAN;
+else if ( curarg[1] == ’c’ ) player2 = COMPUTER;
+else
+{
+/* print an error message and exit */
+fprintf(stderr,"%s: Illegal argument \"%s\" for option -users.\n",
+argv[0], curarg);
+exit(-1);
+}
+/* valid oppenents selected */
+fprintf(stderr,"The users have been selected as %s vs. %s\n",
+(player1 == HUMAN) ? "human" : "computer",
+(player2 == HUMAN) ? "human" : "computer");
+}
+else
+{
+/* print argument list and exit */
+fprintf(stderr,"%s -size <size> -users hh/hc/ch/cc\n", argv[0]);
+exit(-1);
+}
+/* next argument */
+currentarg++;
+}
+/* initialise board to starting position and print starting position */
+Initialise_Board();
+Print_Board();
+10
+/* start game */
+for(;;)
+{
+int checkscore;
+int chosenx, choseny;
+/* get score of move for player 1that gives the biggest score */
+score1 = Best_Move(PLAYER1, &chosenx, &choseny);
+if ( score1 == 0 )
+{
+fprintf ( stderr, "Player 1 can’t go\n" );
+/* finish game if player 2 couldn’t move last time either */
+if ( score2 == 0 ) break;
+}
+else
+{
+if ( player1 == HUMAN )
+{
+/* prompt human player 1 for their turn */
+score1 = Get_Human_Move(PLAYER1, &chosenx, &choseny);
+/* check for game termination */
+if ( score1 == -1 ) break;
+}
+/* if player 1 is the computer, check that Best_Move() is
+implemented */
+else if ( score1 == -1 ) /* illegal score */
+{
+fprintf ( stderr, "Computer generated move (Best_Move()) not implemented\n" );
+exit(-1);
+}
+/* check for pass by human player */
+if ( score1 == 0 )
+fprintf ( stderr, "Player 1 has passed\n" );
+else
+{
+/* make move on the board */
+checkscore = Move(PLAYER1, chosenx, choseny);
+if(score1 != checkscore)
+{
+printf("inconsistent scores %d %d for player 1 move\n",
+score1, checkscore);
+exit(-1);
+}
+Print_Board();
+}
+11
+}
+/* get score of move for player 2 that gives the biggest score */
+score2 = Best_Move(PLAYER2, &chosenx, &choseny);
+if ( score2 == 0 )
+{
+fprintf ( stderr, "Player 2 can’t go\n" );
+/* finish game if player 1 couldn’t move last time either */
+if ( score1 == 0 ) break;
+}
+else
+{
+if ( player2 == HUMAN )
+{
+/* prompt human player 2 for their turn */
+score2 = Get_Human_Move(PLAYER2, &chosenx, &choseny);
+/* check for game termination */
+if ( score2 == -1 ) break;
+}
+/* if player 2 is the computer, check that Best_Move() is
+implemented */
+else if ( score2 == -1 ) /* illegal score */
+{
+fprintf ( stderr, "Computer generated move (Best_Move()) not implemented\n" );
+exit(-1);
+}
+/* check for pass by human player */
+if ( score2 == 0 )
+fprintf ( stderr, "Player 2 has passed\n" );
+else
+{
+/* make move on the board */
+checkscore = Move(PLAYER2, chosenx, choseny);
+if(score2 != checkscore)
+{
+printf("inconsistent scores %d %d for player 2 move\n",
+score2, checkscore);
+exit(-1);
+}
+}
+Print_Board();
+}
+}
+/* game is over */
+printf ( "Game over\n" );
+12
+return 0;
+}
